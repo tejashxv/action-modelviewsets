@@ -8,6 +8,10 @@ from home.serializers import *
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from.permission import IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed  
+from django.db.models import Q
+
 # Create your views here.
 
 
@@ -26,6 +30,36 @@ class RegisterAPI(APIView):
 class PublicEventViewset(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    http_method_names = ['get']
+    
+    
+    @action(detail=False, methods=['GET'])
+    def search_events(Self, request):
+        search = request.GET.get("search")
+        events = Event.objects.all()
+        if search:
+            events = events.filter(Q(title__icontains=search) | Q(description__icontains=search))
+
+        serializer = EventSerializer(events, many=True)
+        return Response({
+            "status": "success",
+            "data": serializer.data
+        })    
+
+    
+    # def create(self, request):
+    #     raise MethonNotAllowed('POST')
+    
+    # def update(self, request, *args, **kwargs):
+    #     raise MethonNotAllowed('PUT')
+    
+    # def destroy(self, request, *args, **kwargs):
+    #     raise MethonNotAllowed('DELETE')
+    
+    
+        
+    
+    
     
     
 class PrivateEventViewset(viewsets.ModelViewSet):
