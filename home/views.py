@@ -99,3 +99,22 @@ class LoginAPI(APIView):
             except User.DoesNotExist:
                 return Response({"error": "User does not exist"}, status=404)
         return Response(serializer.errors, status=400)
+    
+    
+class BookViewset(viewsets.ModelViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    @action(detail=False, methods=['POST'])
+    def create_booking(self, request):
+        serializer = TicketSerializer(data=request.data)
+        if serializer.is_valid():
+            booking = serializer.save()
+            return Response({
+                "status": "success",
+                "data": BookingSerializer(booking).data
+            }, status=201)
+        
+        return Response(serializer.errors, status=400)
