@@ -107,6 +107,19 @@ class BookViewset(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
+    @action(detail=False, methods=['GET'])
+    def get_bookings(self, request):
+        user = request.user
+        bookings = Booking.objects.filter(user=user)
+        print(f"User: {user.username}, Bookings: {bookings.count()}")
+        serializer = BookingSerializer(bookings, many=True)
+        print(serializer.data)
+        return Response({
+            "status": "success",
+            "data": serializer.data
+        })
+
+    
     @action(detail=False, methods=['POST'])
     def create_booking(self, request):
         serializer = TicketSerializer(data=request.data)

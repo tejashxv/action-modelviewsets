@@ -31,6 +31,22 @@ class BookingSerializer(serializers.ModelSerializer):
         model = Booking
         fields = '__all__'
         
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['ticket'] = {
+            'id': instance.ticket.id,
+            'ticket_type': instance.ticket.ticket_type,
+            'total_person': instance.ticket.total_person,
+            'event': {
+                'id': instance.ticket.event.id,
+                'title': instance.ticket.event.title,
+                'date': instance.ticket.event.date,
+                'capacity': instance.ticket.event.capacity,
+                'ticket_price': instance.ticket.event.ticket_price
+            }
+        }
+        return representation
+    
     
 class TicketSerializer(serializers.Serializer):
     try:
