@@ -66,7 +66,14 @@ class TicketSerializer(serializers.Serializer):
                 raise serializers.ValidationError("User does not exist")
             return value
 
-
+        def validate(self, data):
+            event = Event.objects.get(id=data['event'])
+            total_person = event.capacity
+            if total_person > 3:
+                raise serializers.ValidationError("You can book a maximum of 3 tickets at a time")
+            return data
+        
+        
         def create(self, validated_data):
             print(validated_data)
             event = Event.objects.get(id=validated_data['event'])
